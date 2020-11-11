@@ -78,6 +78,8 @@ CREATE TABLE table_name(
 
 **METHOD TO INSERT DATA IN TABLE**
 
+- In order to prompt the user for the correct data, create an empty list (``data_values``) and for each item in (``self.table_column_info.items()``) ask the user input with an f-string.
+- Found it was necessary to add extra quotes around the user_input if the datatype was VARCHAR()
 ```python
 def insert_data(self):
     '''
@@ -110,6 +112,13 @@ def insert_data(self):
     # execute query
     self.cursor.execute(query)
 ```
+- Again the query formatting is:
+```SQL
+INSERT INTO table_name
+(column1, column2, ..., columnN)
+VALUES('value1', 'value2', ..., 'valueN')
+```
+- and so some extra string formatting is required
 
 **METHOD TO DISPLAY TABLE**
 ```python
