@@ -7,6 +7,8 @@ Why use Databases?
 
 Python and SQL servers communicate with each other via _API Calls_
 
+![](images/diagram.png)
+
 ## PYODBC
 Using PYODBC module (**O**pen **D**ata**B**ase **C**onnectivity) to connect to SQL from a Python program
 
