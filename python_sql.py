@@ -7,8 +7,8 @@ import pyodbc
 # connect to Northwind DB
 server = "databases1.spartaglobal.academy"
 database = "Northwind"
-username = "SA"
-password = "Passw0rd2018"
+username = "**"
+password = "***"
 
 
 # server name, DB name, username, and password are required to connect with pyodbc
