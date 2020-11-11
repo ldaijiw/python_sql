@@ -6,3 +6,9 @@ Why use Databases?
 - Meet customer expectations
 
 Python and SQL servers communicate with each other via _API Calls_
+
+## PYODBC
+Using PYODBC module (**O**pen **D**ata**B**ase **C**onnectivity) to connect to SQL from a Python program
+
+**Cursors**
+- Cursors are some functions used to interact with SQL data
