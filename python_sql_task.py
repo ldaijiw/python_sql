@@ -1,6 +1,6 @@
 import pyodbc
 
-class SQLConnector:
+class SQLDatabaseAPI:
     def __init__(self):
         self.start_connection()
 
@@ -10,12 +10,15 @@ class SQLConnector:
         
         try:
             print("Establishing Connection")
+            # connect to server with pyodbc.connect()
             self.db_connection = pyodbc.connect(f"DRIVER=ODBC Driver 17 for SQL Server;SERVER={server};DATABASE={database};UID={username};PWD={password}")
+            # init cursor to execute queries
             self.cursor = self.db_connection.cursor()
         except:
             print("Something went wrong")
         
         else:
+            # if no errors occurs prints following message
             print("Connection Successfully Made")
         
 
@@ -70,7 +73,7 @@ class SQLConnector:
         # execute query
         self.cursor.execute(query)
     
-    
+
     def display_table(self):
         # display everything from table
         print(self.cursor.execute(f"SELECT * FROM {self.table_name};").fetchall())
@@ -78,7 +81,7 @@ class SQLConnector:
 
 
 if __name__ == "__main__":
-    python_sql_obj = SQLConnector()
+    python_sql_obj = SQLDatabaseAPI()
     python_sql_obj.create_table("ldaijiw_table", name = "VARCHAR(16)" , age = "INT", address = "VARCHAR(32)")
     python_sql_obj.insert_data()
     python_sql_obj.insert_data()
