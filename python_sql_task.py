@@ -4,9 +4,8 @@ class SQLDatabaseAPI:
     def __init__(self):
         self.start_connection()
 
-
     
-    def start_connection(self, server = "databases1.spartaglobal.academy", database = "Northwind", username = "SA", password = "Passw0rd2018"):
+    def start_connection(self, server = "databases1.spartaglobal.academy", database = "Northwind", username = "**", password = "**"):
         
         try:
             print("Establishing Connection")

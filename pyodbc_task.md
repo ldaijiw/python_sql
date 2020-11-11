@@ -38,7 +38,9 @@ def start_connection(self, server = "databases1.spartaglobal.academy", database 
 ```
 
 **METHOD TO CREATE A TABLE IN DB**
-
+- In order to create a table in the database, the required parameters are:
+    - Table Name (str): Passed as the first argument in the method (``table_name``) 
+    - Column Information (dict): Method can accept any number of keyword arguments in the form of ``column_name = 'datatype'`` and form a dictionary (``column_info``) containing all the key info. 
 ```python
 def create_table(self, table_name, **column_info):
     '''
@@ -49,7 +51,21 @@ def create_table(self, table_name, **column_info):
     '''
     self.table_name = table_name
     self.table_column_info = column_info
-
+```
+- After assigning those two parameters as class attributes, now format all the necessary strings in order to construct the SQL query to be made, in the form of (using example datatypes)
+```SQL
+CREATE TABLE table_name(
+    column1 VARCHAR(255),
+    column2 VARCHAR(5),
+    column3 INT
+    .
+    .
+    .
+    columnN INT
+)
+```
+- Although the tabs and newlines are optional, formatting the string in this way can make debugging the string easier in Python.
+```python
     # creates string containing the column information, formatted correctly to be added to the query
     column_info_str = ',\n'.join([f"{column_name} {datatype}" for column_name, datatype in self.table_column_info.items()])
     
