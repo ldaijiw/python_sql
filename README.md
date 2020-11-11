@@ -68,3 +68,9 @@ while True:
         break
     print(records.UnitPrice)
 ```
+
+Summary
+- pyodbc installation and connection set up
+- cursor utilisation
+- ``fetchone()``: Selects one record
+- ``fetchall()``: Selects all records
