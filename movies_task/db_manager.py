@@ -1,5 +1,6 @@
 import pyodbc
 import csv
+from progress.bar import ChargingBar
 
 class MovieDBManager:
     def __init__(self):
@@ -26,13 +27,13 @@ class MovieDBManager:
         create_from_data = True if input("\nCreate table from existing data?\n(y/n)\n") == "y" else False
 
         if create_from_data:
-            filename = input("\nPlease enter path for file\n")
             file_read = False
             while not file_read:
+                filename = input("\nPlease enter path for file\n")
                 try:
                     self.table_name, self.table_data = self.data_from_file(filename)
                     self.column_names = self.table_data.pop(0)
-
+                    self.column_names[0] = self.column_names[0][3:]
                 except FileNotFoundError as errmsg:
                     print(errmsg)
                     print("\nSorry that's not a valid, path. Please try again.\n\n")
@@ -56,7 +57,7 @@ class MovieDBManager:
                 print(f"NEW TABLE NAME {self.table_name}")
 
             elif attr_to_change == 'column_names': 
-                column_to_change = int(input(f"\nWhich column would you like to change?\n0 - {len(self.column_names)}\n"))
+                column_to_change = int(input(f"\nWhich column would you like to change?\n0 - {len(self.column_names)-1}\n"))
 
                 try:
                     self.column_names[column_to_change] = input("\nPlease enter new column name\n")
@@ -85,16 +86,48 @@ class MovieDBManager:
         
         # creates string containing the column information, formatted correctly to be added to the query
         column_info_str = ',\n'.join([f"{column_name} VARCHAR(255)" for column_name in self.column_names])
+
         
         # final string formatted correctly for SQL query
         create_table_query = f"CREATE TABLE {self.table_name}(\n{column_info_str});"
-        print(create_table_query)
+        
+        try:
+            self.cursor.execute(create_table_query)
+        except:
+            print("UNABLE TO CREATE TABLE")
+            return
+        else:
+            print("\n***\nTABLE CREATED SUCCESSFULLY\n***\n")
 
-        self.cursor.execute(create_table_query)
+        data_insertion_bar = ChargingBar('  INSERTING DATA', max = len(self.table_data))
+        
+        for data_row in self.table_data:
+            self.insert_data(*data_row)
+            data_insertion_bar.next()
+            
+
+        print("\n\n***\nDATA INSERTED SUCESSFULLY\n***\n")
 
 
     def insert_data(self, *data):
-        pass
+        # create string for data values, and column names, formatted correctly
+        if not hasattr(self, 'table_name'):
+            self.table_name = input("\nPlease enter table name to insert data into.\n")
+
+        column_names = ', '.join(self.column_names)
+
+        data = list(data)
+        for i, item in enumerate(data):
+            if "'" in item:
+                data[i] = item.replace("'", "''")
+
+        insert_data_str = ", ".join([f"'{item}'" for item in data])
+        
+        # final SQL query string formatted correctly
+        insert_data_query = f"INSERT INTO {self.table_name}\n({column_names})\nVALUES({insert_data_str});"
+        
+        # execute insert_data_query
+        self.cursor.execute(insert_data_query)
 
 
 
@@ -116,8 +149,9 @@ class MovieDBManager:
 
 
     def select_query(self, select_details = "*"):
-        pass
+        query = f"SELECT {select_details} FROM {self.table_name}"
 
+        return self.cursor.execute(query).fetchall()
 
     def find_movie(self, movie_title):
         pass
@@ -131,6 +165,9 @@ def main():
     new_mdbm = MovieDBManager()
     #new_mdbm.data_from_file("movies_task/imdbtitles.csv")
     new_mdbm.create_table()
+    #new_mdbm.insert_data('action', 'inception', 'inception', 'y', '2019', '2020', '120', 'action')
+    print(new_mdbm.select_query("COUNT(*)"))
+
 
 if __name__ == "__main__":
     main()
