@@ -45,22 +45,38 @@ class MovieDBManager:
 
         proceed = True if input("\nWould you like to proceed to table creation?\n(y/n)\n") == "y" else False
         while not proceed:
-            attr_to_change = input("What would you like to change?\n(table name/column names/table data)\n").lower().replace(' ', '_')
-
-            print(attr_to_change)
+            attr_to_change = input("What would you like to change?\n(table name/column names)\n").lower().replace(' ', '_')
 
             if attr_to_change == 'table_name':
                 self.table_name = input("\nPlease enter new table name\n")
+                print(f"NEW TABLE NAME {self.table_name}")
 
             elif attr_to_change == 'column_names': 
                 column_to_change = int(input(f"\nWhich column would you like to change?\n0 - {len(self.column_names)}\n"))
+
                 try:
                     self.column_names[column_to_change] = input("\nPlease enter new column name\n")
+
                 except IndexError as errmsg:
                     print(errmsg)
                     print("Column index out of range, please try again")
+
+                else:
+                    print("Column name change successful\n")
+                    print(f"NEW COLUMN NAMES\n{self.column_names}")
+
             else:
                 print("Not recognised, please try again.")
+                continue
+            
+            proceed = True if input("\nWould you like to make any other changes?\n(y/n)\n") == "n" else False
+        
+        print(f"TABLE NAME: {self.table_name}")
+        print(f"COLUMN NAMES: {self.column_names}")
+        print(f"{len(self.table_data)} ROWS TO BE ADDED")
+
+        
+
 
 
 
