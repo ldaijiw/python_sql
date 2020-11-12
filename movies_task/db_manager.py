@@ -1,7 +1,9 @@
 import pyodbc
+import csv
 
 class MovieDBManager:
     def __init__(self):
+        self.user = 'daiji'
         self.start_connection()
 
     
@@ -20,10 +22,60 @@ class MovieDBManager:
             print("Connection Successfully Made")
 
 
-    def create_table(self, table_name, **column_details):
-        pass
+    def create_table(self):
+        create_from_data = True if input("\nCreate table from existing data?\n(y/n)\n") == "y" else False
 
-    
+        if create_from_data:
+            filename = input("\nPlease enter path for file\n")
+            try:
+                self.table_name, self.table_data = self.data_from_file(filename)
+                self.column_names = self.table_data.pop(0)
+
+            except FileNotFoundError as errmsg:
+                print(errmsg)
+                print("\nSorry that's not a valid, path. Please try again.\n\n")
+                self.create_table()
+
+            else:
+                print("File successfully loaded\n")
+                print(f"TABLE NAME: {self.table_name}")
+                print(f"COLUMN NAMES: {self.column_names}")
+                print(f"{len(self.table_data)} ROWS TO BE ADDED")
+
+
+        proceed = True if input("\nWould you like to proceed to table creation?\n(y/n)\n") == "y" else False
+        while not proceed:
+            attr_to_change = input("What would you like to change?\n(table name/column names/table data)\n").lower().replace(' ', '_')
+
+            print(attr_to_change)
+
+            if attr_to_change == 'table_name':
+                self.table_name = input("\nPlease enter new table name\n")
+
+            elif attr_to_change == 'column_names': 
+                column_to_change = int(input(f"\nWhich column would you like to change?\n0 - {len(self.column_names)}\n"))
+                try:
+                    self.column_names[column_to_change] = input("\nPlease enter new column name\n")
+                except IndexError as errmsg:
+                    print(errmsg)
+                    print("Column index out of range, please try again")
+            else:
+                print("Not recognised, please try again.")
+
+
+
+    def data_from_file(self, filename):
+        with open(filename, "r") as datafile:
+            if filename[-3:] == "csv":
+                csvdata = list(csv.reader(datafile))
+                table_name = f"{self.user}_{filename[:-4].split('/')[-1]}"
+                return table_name, csvdata
+                
+                
+                
+
+
+
     def table_info(self):
         pass
 
@@ -34,3 +86,17 @@ class MovieDBManager:
 
     def find_movie(self, movie_title):
         pass
+
+    
+    def add_movie(self, movie_details):
+        pass
+
+
+def main():
+    new_mdbm = MovieDBManager()
+    #new_mdbm.data_from_file("movies_task/imdbtitles.csv")
+    new_mdbm.create_table()
+
+if __name__ == "__main__":
+    main()
+    
