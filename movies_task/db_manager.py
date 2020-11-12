@@ -27,23 +27,27 @@ class MovieDBManager:
 
         if create_from_data:
             filename = input("\nPlease enter path for file\n")
-            try:
-                self.table_name, self.table_data = self.data_from_file(filename)
-                self.column_names = self.table_data.pop(0)
+            file_read = False
+            while not file_read:
+                try:
+                    self.table_name, self.table_data = self.data_from_file(filename)
+                    self.column_names = self.table_data.pop(0)
 
-            except FileNotFoundError as errmsg:
-                print(errmsg)
-                print("\nSorry that's not a valid, path. Please try again.\n\n")
-                self.create_table()
+                except FileNotFoundError as errmsg:
+                    print(errmsg)
+                    print("\nSorry that's not a valid, path. Please try again.\n\n")
+                    
 
-            else:
-                print("File successfully loaded\n")
-                print(f"TABLE NAME: {self.table_name}")
-                print(f"COLUMN NAMES: {self.column_names}")
-                print(f"{len(self.table_data)} ROWS TO BE ADDED")
+                else:
+                    file_read = True
+                    print("File successfully loaded\n")
+                    print(f"TABLE NAME: {self.table_name}")
+                    print(f"COLUMN NAMES: {self.column_names}")
+                    print(f"{len(self.table_data)} ROWS TO BE ADDED")
 
 
         proceed = True if input("\nWould you like to proceed to table creation?\n(y/n)\n") == "y" else False
+
         while not proceed:
             attr_to_change = input("What would you like to change?\n(table name/column names)\n").lower().replace(' ', '_')
 
@@ -75,7 +79,22 @@ class MovieDBManager:
         print(f"COLUMN NAMES: {self.column_names}")
         print(f"{len(self.table_data)} ROWS TO BE ADDED")
 
+
+        print("\n***\nCREATING TABLE\n***\n")
+
         
+        # creates string containing the column information, formatted correctly to be added to the query
+        column_info_str = ',\n'.join([f"{column_name} VARCHAR(255)" for column_name in self.column_names])
+        
+        # final string formatted correctly for SQL query
+        create_table_query = f"CREATE TABLE {self.table_name}(\n{column_info_str});"
+        print(create_table_query)
+
+        self.cursor.execute(create_table_query)
+
+
+    def insert_data(self, *data):
+        pass
 
 
 
