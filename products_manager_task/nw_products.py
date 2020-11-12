@@ -26,9 +26,9 @@ class ProductManager:
         return query_results
         
     
-    def average_value_stock(self):
-        query_results = self.cursor.execute("SELECT AVG(UnitsInStock * UnitPrice) FROM Products;").fetchone()[0]
-        return f"AVERAGE VALUE OF STOCK: {query_results}"
+    def average_value(self, column_to_avg):
+        query_results = self.cursor.execute(f"SELECT AVG({column_to_avg}) FROM Products;").fetchone()[0]
+        return f"AVERAGE VALUE OF {column_to_avg}: {query_results}"
 
     
     @property
