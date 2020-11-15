@@ -44,6 +44,13 @@ pip install pyodbc
 pip install progress
 ```
 
+**IMPORT REQUIREMENTS**
+```python
+import pyodbc
+import csv
+from progress.bar import ChargingBar
+```ad
+
 MovieDBManager class with ``__init__`` to call ``start_connection`` method to connect to SQL DB
 ```python
 class MovieDBManager:
@@ -247,6 +254,7 @@ def data_from_file(self, filepath, insert_data = False):
             return table_name, table_data
 ```
 **METHODS TO DISPLAY INFORMATION ABOUT TABLE AFTER CREATION**
+
 ``table_information`` with property so it can be printed directly, retrieves column names of table
 ```python
 @property
