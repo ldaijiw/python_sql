@@ -3,19 +3,25 @@ import csv
 from progress.bar import ChargingBar
 
 class MovieDBManager:
-    def __init__(self):
-        self.user = 'daiji'
+    def __init__(self, user = 'daiji'):
+        self.user = user
         self.start_connection()
 
 
     @classmethod
     def from_existing_table(cls, table_name):
+        '''
+        Class method to create instance from existing table name
+        '''
         new_class = cls()
         new_class.table_name = table_name
         return new_class
 
 
     def start_connection(self, server = "databases1.spartaglobal.academy", database = "Northwind", username = "SA", password = "Passw0rd2018"):
+        '''
+        Starts connection to SQL DB with default credentials
+        '''
         try:
             print("Establishing Connection")
             # connect to server with pyodbc.connect()
@@ -32,20 +38,27 @@ class MovieDBManager:
 
 
     def create_table(self):
+        '''
+        Method to create table, prompts user to input path for data file and any changes to be made before creating table query
+        '''
+
         create_from_data = True if input("\nCreate table from existing data?\n(y/n)\n") == "y" else False
 
         if create_from_data:
             file_read = False
             while not file_read:
                 filename = input("\nPlease enter path for file\n")
+                # attempt to extract data from given file path, if invalid will prompt again
                 try:
+                    # assigns class vars using data_from_file method
                     self.table_name, self.table_data = self.data_from_file(filename)
+                    # assign column names from first row of data
                     self.column_names = self.table_data.pop(0)
                     self.column_names[0] = self.column_names[0][3:]
+
                 except FileNotFoundError as errmsg:
                     print(errmsg)
                     print("\nSorry that's not a valid, path. Please try again.\n\n")
-                    
 
                 else:
                     file_read = True
@@ -53,21 +66,29 @@ class MovieDBManager:
                     print(f"TABLE NAME: {self.table_name}")
                     print(f"COLUMN NAMES: {self.column_names}")
                     print(f"{len(self.table_data)} ROWS TO BE ADDED")
+        else:
+            # option to create table from manually inserting data, to be added later
+            return
 
-
+        # Prompts user if they want to continue to table creation or alter any feature
         proceed = True if input("\nWould you like to proceed to table creation?\n(y/n)\n") == "y" else False
 
+
         while not proceed:
+            # Asks user what they'd like to change
             attr_to_change = input("What would you like to change?\n(table name/column names)\n").lower().replace(' ', '_')
 
             if attr_to_change == 'table_name':
+            # if table name entered then ask user for new table name
                 self.table_name = input("\nPlease enter new table name\n")
                 print(f"NEW TABLE NAME {self.table_name}")
 
             elif attr_to_change == 'column_names': 
+                # if column names then ask which column they'd like to change
                 column_to_change = int(input(f"\nWhich column would you like to change?\n0 - {len(self.column_names)-1}\n"))
 
                 try:
+                    # reassign column name from user input
                     self.column_names[column_to_change] = input("\nPlease enter new column name\n")
 
                 except IndexError as errmsg:
@@ -82,6 +103,7 @@ class MovieDBManager:
                 print("Not recognised, please try again.")
                 continue
             
+            # if user doesn't want to make any other changes then proceed = True and loop breaks
             proceed = True if input("\nWould you like to make any other changes?\n(y/n)\n") == "n" else False
         
         print(f"TABLE NAME: {self.table_name}")
@@ -100,6 +122,7 @@ class MovieDBManager:
         create_table_query = f"CREATE TABLE {self.table_name}(\n{column_info_str});"
         
         try:
+            # execute query
             self.cursor.execute(create_table_query)
         except:
             print("UNABLE TO CREATE TABLE")
@@ -108,7 +131,7 @@ class MovieDBManager:
             print("\n***\nTABLE CREATED SUCCESSFULLY\n***\n")
 
         data_insertion_bar = ChargingBar('  INSERTING DATA', max = len(self.table_data))
-        
+        # iterate through table data and insert data into table
         for data_row in self.table_data:
             self.insert_data(*data_row)
             data_insertion_bar.next()
@@ -118,12 +141,16 @@ class MovieDBManager:
 
 
     def insert_data(self, *data):
+        '''
+        Insert data into table, args passed are data values to be inserted
+        '''
         # create string for data values, and column names, formatted correctly
         if not hasattr(self, 'table_name'):
             self.table_name = input("\nPlease enter table name to insert data into.\n")
 
         column_names = ', '.join(self.column_names)
 
+        # if any values in data contain apostrophe, replace with double apostrophe to avoid formatting errors
         data = list(data)
         for i, item in enumerate(data):
             if "'" in item:
@@ -138,28 +165,38 @@ class MovieDBManager:
         self.cursor.execute(insert_data_query)
 
 
-    def data_from_file(self, filename, insert_data = False):
-        with open(filename, "r") as datafile:
-            if filename[-3:] == "csv":
-                csvdata = list(csv.reader(datafile))
-                table_name = f"{self.user}_{filename[:-4].split('/')[-1]}"
-                return table_name, csvdata
+    def data_from_file(self, filepath, insert_data = False):
+        '''
+        Read data from filename passed as argument, if insert_data is True then will attempt to insert data into table directly, otherwise returns formatted data from file
+        '''
+        with open(filepath, "r") as datafile:
+            # if file ends in csv then use csv.reader to open file
+            if filepath[-3:] == "csv":
+                table_data = list(csv.reader(datafile))
             
-            elif filename[-3:] == "txt":
+            # if file ends in txt then use read method and splitlines() to format data 
+            elif filepath[-3:] == "txt":
                 textdata_raw = datafile.read().replace(', ', ',').splitlines()
-                textdata = [item.split(',') for item in textdata_raw]
-                
-                if insert_data:
-                    print("INSERTING DATA FROM TEXT FILE")
-                    for item in textdata:
-                        self.insert_data(*item)
-                        
-                return textdata
-
+                table_data = [item.split(',') for item in textdata_raw]
+            else:
+                print("filepath not recognised")
+                return
+            
+            if insert_data:
+                print("INSERTING DATA FROM TEXT FILE")
+                for item in table_data:
+                    self.insert_data(*item)
+            
+            # table name assigned concatenating user name with filename, extracted from path
+            table_name = f"{self.user}_{filepath[:-4].split('/')[-1]}"
+            return table_name, table_data
 
 
     @property
     def table_information(self):
+        '''
+        Returns table info from SQL query
+        '''
         table_info = self.cursor.execute(f'''
         SELECT
         TABLE_NAME,
@@ -170,18 +207,26 @@ class MovieDBManager:
         return table_info
         
 
-
     def select_query(self, select_details = "*"):
+        '''
+        Customisable SELECT query with default: SELECT *
+        '''
         query = f"SELECT {select_details} FROM {self.table_name};"
-        print(query)
         return self.cursor.execute(query).fetchall()[0]
 
-    def find_movie(self, movie_title):
-        query = f"SELECT * FROM {self.table_name} WHERE primaryTitle IS {movie_title}"
+
+    def find_movie(self, movie_title, select_details = "*"):
+        '''
+        Customisable SELECT query to find specific movie by title
+        '''
+        query = f"SELECT {select_details} FROM {self.table_name} WHERE primaryTitle IS {movie_title}"
         pass
 
 
     def delete_table(self, table_name):
+        '''
+        Method to drop table
+        '''
         query = f"DROP TABLE {table_name};"
         self.cursor.execute(query)
 
