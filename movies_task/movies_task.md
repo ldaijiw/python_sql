@@ -49,7 +49,7 @@ pip install progress
 import pyodbc
 import csv
 from progress.bar import ChargingBar
-```ad
+```
 
 MovieDBManager class with ``__init__`` to call ``start_connection`` method to connect to SQL DB
 ```python
