@@ -8,17 +8,7 @@ class MovieDBManager:
         self.start_connection()
 
 
-    @classmethod
-    def from_existing_table(cls, table_name):
-        '''
-        Class method to create instance from existing table name
-        '''
-        new_class = cls()
-        new_class.table_name = table_name
-        return new_class
-
-
-    def start_connection(self, server = "databases1.spartaglobal.academy", database = "Northwind", username = "SA", password = "Passw0rd2018"):
+    def start_connection(self, server = "databases1.spartaglobal.academy", database = "Northwind", username = "***", password = "***"):
         '''
         Starts connection to SQL DB with default credentials
         '''
@@ -35,6 +25,16 @@ class MovieDBManager:
             # if no errors occurs prints following message
             print("Connection Successfully Made")
             self.database = database
+
+
+    @classmethod
+    def from_existing_table(cls, table_name):
+        '''
+        Class method to create instance from existing table name
+        '''
+        new_class = cls()
+        new_class.table_name = table_name
+        return new_class
 
 
     def create_table(self):
@@ -73,7 +73,6 @@ class MovieDBManager:
         # Prompts user if they want to continue to table creation or alter any feature
         proceed = True if input("\nWould you like to proceed to table creation?\n(y/n)\n") == "y" else False
 
-
         while not proceed:
             # Asks user what they'd like to change
             attr_to_change = input("What would you like to change?\n(table name/column names)\n").lower().replace(' ', '_')
@@ -110,14 +109,11 @@ class MovieDBManager:
         print(f"COLUMN NAMES: {self.column_names}")
         print(f"{len(self.table_data)} ROWS TO BE ADDED")
 
-
         print("\n***\nCREATING TABLE\n***\n")
 
-        
         # creates string containing the column information, formatted correctly to be added to the query
         column_info_str = ',\n'.join([f"{column_name} VARCHAR(255)" for column_name in self.column_names])
 
-        
         # final string formatted correctly for SQL query
         create_table_query = f"CREATE TABLE {self.table_name}(\n{column_info_str});"
         
@@ -130,7 +126,8 @@ class MovieDBManager:
         else:
             print("\n***\nTABLE CREATED SUCCESSFULLY\n***\n")
 
-        data_insertion_bar = ChargingBar('  INSERTING DATA', max = len(self.table_data))
+        # progress bar to indicate progress of data insertion
+        data_insertion_bar = ChargingBar('INSERTING DATA', max = len(self.table_data))
         # iterate through table data and insert data into table
         for data_row in self.table_data:
             self.insert_data(*data_row)
@@ -234,14 +231,12 @@ class MovieDBManager:
 
 def main():
     new_mdbm = MovieDBManager()
-    # new_mdbm.delete_table("daiji_imdbtitles")
     new_mdbm.create_table()
     new_mdbm.data_from_file("movies_task/more_movies.txt", insert_data=True)
-    # print(new_mdbm.table_name)
-    # print(new_mdbm.table_information)
 
-   
-    #print(new_mdbm.select_query())
+    print(new_mdbm.table_name)
+    print(new_mdbm.table_information)
+    print(new_mdbm.select_query())
 
 
 if __name__ == "__main__":
